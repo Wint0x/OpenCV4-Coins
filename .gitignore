@@ -1,0 +1,5 @@
+build/
+SERVER/__pycache__/
+
+.vscode
+.git
