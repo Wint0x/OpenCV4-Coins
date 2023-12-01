@@ -5,30 +5,14 @@ const bool equal_mats(const cv::Mat&, const cv::Mat&);
 // Path of the data set
 const char* DATA_SET_PATH = "/home/mintdev/Desktop/OpenCV/OPENCVTEST/build/DATA_SETS/coins/data/train";
 
-/* IGNORE
-constexpr float INPUT_WIDTH = 640.0;
-constexpr float INPUT_HEIGHT = 640.0;
-constexpr float SCORE_THRESHOLD = 0.5;
-constexpr float NMS_THRESHOLD = 0.45;
-constexpr float CONFIDENCE_THRESHOLD = 0.45;
-    
-// Text parameters.
-constexpr float FONT_SCALE = 0.7;
-constexpr int FONT_FACE = cv::FONT_HERSHEY_SIMPLEX;
-constexpr int THICKNESS = 1;
-    
-// Colors.
+// Just some Colors.
+/*
 cv::Scalar BLACK = cv::Scalar(0,0,0);
 cv::Scalar BLUE = cv::Scalar(255, 178, 50);
 cv::Scalar YELLOW = cv::Scalar(0, 255, 255);
 cv::Scalar RED = cv::Scalar(0,0,255);
 */
 
-// Variables for canny edge detection
-int lowThreshold = 0;
-constexpr int max_lowThreshold = 100;
-constexpr int ratio = 3;
-constexpr int kernel_size = 3;
 const char* window_name = "Edge Map";
 
 int main(int argc, char** argv)
@@ -140,29 +124,64 @@ int main(int argc, char** argv)
     /* Coin detection system (Counts coins) */
     std::vector<cv::Vec3f> coins;
 
-    // Matrixes declaration
-    cv::Mat src = display.clone(), *dst = nullptr;
-    cv::Mat gray, detected_edges;
+    // Define Matrixes
+    // Gray will hold the image's data converted to grayscale (COLOR_BGR2GRAY)
+    cv::Mat src = display.clone();
+    cv::Mat gray, thresh;
     // dst.create(src.size(), src.type());
 
-    // Convert to gray
+    // Resize original image
+    cv::resize(src, src, cv::Size(1080, 1080), cv::INTER_LINEAR);
+
+    cv::Mat drawing = src.clone();
+
+    // Convert to grayscale
     cv::cvtColor( src, gray, cv::COLOR_BGR2GRAY );
 
+    // Blur original image
+    cv::GaussianBlur( gray, gray, cv::Size(11,11), 0);
+
+    // Canny Thresholding operation
+    // 3 -> cv::THRESH_BINARY type
+    cv::Canny(gray, thresh, 30, 60, 3);
+
+    // Dilate image
+    cv::dilate(thresh, thresh, cv::Mat(), cv::Point(1, 1), 2, 1, 1);
+
     cv::namedWindow( window_name, cv::WINDOW_NORMAL );
- 
-    /* [Canny edges]
-    cv::blur( gray, detected_edges, cv::Size(3,3) );
-    cv::Canny( detected_edges, detected_edges, 100, lowThreshold*ratio, kernel_size );
-    dst = cv::Scalar::all(0);
-    src.copyTo( dst, detected_edges);  
+
+    // Canny the blurred grayscale image
+    /*
+        cv::Canny(input_img, output_img, low_threshold, max_threshold, kernel_size)
     */
+    // cv::Canny(gray, thresh, 100, 200);
 
-    cv::GaussianBlur( gray, gray, cv::Size(9, 9), 2, 2 );
+    // Find Contours
+    std::vector<std::vector<cv::Point> > contours;
+    std::vector<cv::Vec4i> hierarchy;
 
-    cv::HoughCircles(gray, coins, cv::HOUGH_GRADIENT,1,gray.rows/4,200,100);
+    cv::findContours( thresh, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE );
 
-    std::cout << "Detected: " << coins.size() << " coins!" << std::endl; 
+    // Draw contours in our original image
+    // cv::Mat drawing = cv::Mat::zeros( thresh.size(), CV_8UC3 );
+    auto color = cv::Scalar(0,0,255); // RED
 
+    cv::drawContours(drawing, contours, -1, color, 2);
+
+    /* GET THE AREA OF EACH CONTOUR */
+    std::unordered_map<uint32_t, double> areas;
+    for ( uint32_t i = 0;  i < contours.size();  i++ )
+    {
+        std::pair<decltype(i), double> pair = {i, cv::contourArea(contours[i])};
+        areas.insert(pair);
+    }
+
+    std::cout << areas.size() << std::endl;
+
+    // std::cout << "Detected: " << contours.size() << " coins!" << std::endl; 
+
+    /* 
+    Comment / Uncomment this if you need OpenCV to display a window with detected coins
     for( size_t i = 0; i < coins.size(); i++ )
     {
          cv::Point center(cvRound(coins[i][0]), cvRound(coins[i][1]));
@@ -172,8 +191,9 @@ int main(int argc, char** argv)
          // draw the circle outline
          cv::circle( src, center, radius, cv::Scalar(0,0,255), 3, 8, 0 );
     }
+    */
 
-    cv::imshow( window_name, src );
+    cv::imshow( window_name, drawing );
 
     cv::waitKey();
 
