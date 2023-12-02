@@ -13,7 +13,7 @@ cv::Scalar YELLOW = cv::Scalar(0, 255, 255);
 cv::Scalar RED = cv::Scalar(0,0,255);
 */
 
-const char* window_name = "Edge Map";
+const char* window_name = "Coin Map";
 
 int main(int argc, char** argv)
 {
@@ -122,80 +122,41 @@ int main(int argc, char** argv)
     // ========================================================= //
 
     /* Coin detection system (Counts coins) */
-    std::vector<cv::Vec3f> coins;
+    // std::vector<cv::Vec3f> coins;
 
     // Define Matrixes
     // Gray will hold the image's data converted to grayscale (COLOR_BGR2GRAY)
     cv::Mat src = display.clone();
     cv::Mat gray, thresh;
-    // dst.create(src.size(), src.type());
-
-    // Resize original image
-    cv::resize(src, src, cv::Size(1080, 1080), cv::INTER_LINEAR);
-
-    cv::Mat drawing = src.clone();
 
     // Convert to grayscale
-    cv::cvtColor( src, gray, cv::COLOR_BGR2GRAY );
+    cv::cvtColor(src, gray, cv::COLOR_BGR2GRAY);
 
-    // Blur original image
-    cv::GaussianBlur( gray, gray, cv::Size(11,11), 0);
+    // Apply gaussian blur
+    cv::GaussianBlur(gray, gray, cv::Size(7, 7), 0);
 
-    // Canny Thresholding operation
-    // 3 -> cv::THRESH_BINARY type
-    cv::Canny(gray, thresh, 30, 60, 3);
+    // Canny edge detection
+    cv::Canny(gray, thresh, 10, 250, 3);
 
-    // Dilate image
-    cv::dilate(thresh, thresh, cv::Mat(), cv::Point(1, 1), 2, 1, 1);
+    // Apply dilation
+     cv::dilate(thresh, thresh, cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(5, 5)));
 
-    cv::namedWindow( window_name, cv::WINDOW_NORMAL );
-
-    // Canny the blurred grayscale image
-    /*
-        cv::Canny(input_img, output_img, low_threshold, max_threshold, kernel_size)
-    */
-    // cv::Canny(gray, thresh, 100, 200);
-
-    // Find Contours
-    std::vector<std::vector<cv::Point> > contours;
+    // Find contours
+    std::vector<std::vector<cv::Point>> contours;
     std::vector<cv::Vec4i> hierarchy;
 
-    cv::findContours( thresh, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE );
+    cv::findContours(thresh.clone(), contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
-    // Draw contours in our original image
-    // cv::Mat drawing = cv::Mat::zeros( thresh.size(), CV_8UC3 );
-    auto color = cv::Scalar(0,0,255); // RED
+    std::cout << contours.size() << std::endl;
 
-    cv::drawContours(drawing, contours, -1, color, 2);
+    // Draw contours
+    cv::drawContours(src, contours, -1, cv::Scalar(0, 0, 255), 2);
 
-    /* GET THE AREA OF EACH CONTOUR */
-    std::unordered_map<uint32_t, double> areas;
-    for ( uint32_t i = 0;  i < contours.size();  i++ )
-    {
-        std::pair<decltype(i), double> pair = {i, cv::contourArea(contours[i])};
-        areas.insert(pair);
-    }
-
-    std::cout << areas.size() << std::endl;
-
-    // std::cout << "Detected: " << contours.size() << " coins!" << std::endl; 
-
-    /* 
-    Comment / Uncomment this if you need OpenCV to display a window with detected coins
-    for( size_t i = 0; i < coins.size(); i++ )
-    {
-         cv::Point center(cvRound(coins[i][0]), cvRound(coins[i][1]));
-         int radius = cvRound(coins[i][2]);
-         // draw the circle center
-         cv::circle( src, center, 3, cv::Scalar(0,255,0), -1, 8, 0 );
-         // draw the circle outline
-         cv::circle( src, center, radius, cv::Scalar(0,0,255), 3, 8, 0 );
-    }
-    */
-
-    cv::imshow( window_name, drawing );
+    cv::namedWindow(window_name, cv::WINDOW_KEEPRATIO);
+    cv::imshow( window_name, src);
 
     cv::waitKey();
+    cv::destroyAllWindows();
 
     return EXIT_SUCCESS;
 }
