@@ -18,11 +18,23 @@ const char* window_name = "Coin Map";
 int main(int argc, char** argv)
 {
     std::string input_image = "";
+    int mode{-1};
+
     if (argc > 1)
     {
         std::vector<std::string> args_list(argv + 1, argv + argc);
 
-        for (int i = 0; i < args_list.size(); i++)
+        // First parameter is detection mode
+        mode = atoi(argv[1]);
+    
+        if (mode < 1 || mode > 2)
+        {
+            std::cerr << "Invalid mode parameter.\n::[Modes]::\n1) Hugh Circles Algorithm\n2) Canny Edge Detection." << std::endl;
+            return EXIT_FAILURE;
+        }
+
+        // Fetches the rest of user arguments (image file path);
+        for (int i = 1; i < args_list.size(); i++)
         {
             if (i != args_list.size() -1)
                 input_image.append(args_list[i] + " ");
@@ -129,31 +141,33 @@ int main(int argc, char** argv)
     cv::Mat src = display.clone();
     cv::Mat gray, thresh;
 
+    auto drawing = src.clone();
+
     // Convert to grayscale
     cv::cvtColor(src, gray, cv::COLOR_BGR2GRAY);
 
-    // Apply gaussian blur
-    cv::GaussianBlur(gray, gray, cv::Size(7, 7), 0);
 
-    // Canny edge detection
-    cv::Canny(gray, thresh, 10, 250, 3);
+    switch (mode)
+    {
+        case 1:
+            // Apply gaussian blur
+            cv::GaussianBlur(gray, gray, cv::Size(9, 9), 2, 2);
+            detection::detect_coins_hughcircles(drawing, gray);
+            break;
 
-    // Apply dilation
-     cv::dilate(thresh, thresh, cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(5, 5)));
+        case 2:
+            // Apply gaussian blur
+            cv::GaussianBlur(gray, gray, cv::Size(7, 7), 0);
+            detection::detect_coins_contours(gray, thresh, drawing);
+            break;
 
-    // Find contours
-    std::vector<std::vector<cv::Point>> contours;
-    std::vector<cv::Vec4i> hierarchy;
-
-    cv::findContours(thresh.clone(), contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-
-    std::cout << contours.size() << std::endl;
-
-    // Draw contours
-    cv::drawContours(src, contours, -1, cv::Scalar(0, 0, 255), 2);
+        default:    
+            std::cerr << "Something went wrong!" << std::endl;
+            return EXIT_FAILURE;
+    }
 
     cv::namedWindow(window_name, cv::WINDOW_KEEPRATIO);
-    cv::imshow( window_name, src);
+    cv::imshow( window_name, drawing);
 
     cv::waitKey();
     cv::destroyAllWindows();
@@ -176,5 +190,3 @@ const bool equal_mats(const cv::Mat& mat1, const cv::Mat& mat2)
         int nz = cv::countNonZero(diff);
         return nz==0;
 }
-
-
