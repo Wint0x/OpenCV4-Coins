@@ -56,7 +56,8 @@ namespace detection
         cv::HoughCircles(gray, circles, cv::HOUGH_GRADIENT, 1, gray.rows / 8, 200, 100, 0, 0);
 
         // Check if any circles are detected
-        if (circles.empty()) {
+        if (circles.empty()) 
+        {
             std::cerr << "No coins detected." << std::endl;
             return;
         }
@@ -99,7 +100,7 @@ namespace detection
         // Draw contours
         cv::drawContours(drawing, contours, -1, cv::Scalar(0, 0, 255), 2);
 
-        std::cout << "Detected around: " << contours.size() << " coin/s" << std::endl;
+        std::cout << "Around: " << contours.size() << " coin/s detected!" << std::endl;
     }
 };
 

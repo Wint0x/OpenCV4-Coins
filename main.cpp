@@ -32,7 +32,6 @@ int main(int argc, char** argv)
             std::cerr << "Invalid mode parameter.\n::[Modes]::\n1) Hugh Circles Algorithm\n2) Canny Edge Detection." << std::endl;
             return EXIT_FAILURE;
         }
-
         // Fetches the rest of user arguments (image file path);
         for (int i = 1; i < args_list.size(); i++)
         {
@@ -145,8 +144,6 @@ int main(int argc, char** argv)
 
     // Convert to grayscale
     cv::cvtColor(src, gray, cv::COLOR_BGR2GRAY);
-
-
     switch (mode)
     {
         case 1:
@@ -177,7 +174,7 @@ int main(int argc, char** argv)
 
 const bool equal_mats(const cv::Mat& mat1, const cv::Mat& mat2)
 {
-            // treat two empty mat as identical as well
+        // treat two empty mat as identical as well
         if (mat1.empty() && mat2.empty())
             return true;
         

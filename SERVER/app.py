@@ -37,6 +37,11 @@ def upload_file():
 
         file = request.files['file']
 
+        mode = request.form.get('mode')
+        mode = ('1' if mode == "hough" else '2')
+
+        print("[DEBUG] -> MODE: ", mode)
+
         # If the user does not select a file, the browser submits an
         # empty file without a filename.
         if file.filename == '':
@@ -52,7 +57,7 @@ def upload_file():
             file.save(saved_img)
             
             # Analyze with Open-Cv
-            analyze_image = CallCommand(saved_img)
+            analyze_image = CallCommand(saved_img, mode=mode)
             
             identifier = analyze_image.check_out()
 
