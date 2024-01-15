@@ -16,6 +16,10 @@ class CallCommand:
 
 			return_str = subp.stdout
 
+			if len(return_str) < 3:
+				coin_str = "Something went wrong / Could not detect any coins, consider switching modes!"
+				return coin_str
+				
 			if not return_str.startswith("Around"):
 				coin_str = return_str.split('/')[-1]
 				coin_str = coin_str.split("__")[-1].replace(".jpg", "").replace("_", " ")

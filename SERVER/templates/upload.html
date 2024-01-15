@@ -4,12 +4,134 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>upload a file!</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
 </head>
 <body>
 	<form action="/get_image" method="POST" enctype="multipart/form-data">
-	  <input type="file" name="file">
-       <input type="submit" value="Upload File">
+	  <label for="formFileLg" class="form-label"><strong>Upload your file!</strong></label>
+      <input name = "file" class="form-control form-control-lg" id="formFileLg" type="file">
+      
+      <br><input type="submit" value="Upload" id="imageSubmitButton">
+
+      <hr>
+      <legend>
+      	Please select a mode:
+      </legend>
+      <input type="radio" id="hough" name="mode" value="hough" checked>
+      <label for="hough">Hough Circles</label><br>
+      <input type="radio" id="canny" name="mode" value="canny">
+      <label for="canny">Canny Edges</label><br>
 	</form>
 
+    <!-- Loading screen -->
+    <script type="text/javascript">
+        document.getElementById("imageSubmitButton").addEventListener("click", displayLoadingScreen);
+
+        function displayLoadingScreen(e) 
+        {
+            document.getElementById("loading_screen").style.display = "block";
+
+            document.getElementsByTagName("body")[0].style.margin=0;
+            document.getElementsByTagName("body")[0].style.padding=0;
+            document.getElementsByTagName("body")[0].style.background="rgba(0,,0,0,.9)";
+        }
+
+    </script>
+    <div id="loading_screen" style="display: none;">
+        <ul>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+
+    </div>
 </body>
+
+<style type="text/css">
+/*    body{
+  margin:0;
+  padding:0;
+  background:rgba(0,0,0,.9);
+}
+*/
+    ul{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  margin:0;
+  padding:0;
+  display:flex;
+  
+}
+ul li{
+  list-style:none;
+  width:40px;
+  height:40px;
+  background:#fff;
+  border-radius:50%;
+  animation:grow 1.6s ease-in-out infinite;
+}
+  @keyframes grow
+  {
+    0% , 40% , 100%
+    {
+      transform:scale(0.2);
+    }
+    20%{
+       transform:scale(1);
+
+    }
+  }
+
+ul li:nth-child(1){
+  animation-delay:-1.4s;
+  background:#ffff00;
+  box-shadow:0 0 50px #ffff00;
+  
+}
+ul li:nth-child(2){
+  animation-delay:-1.2s;
+  background:#76ff03;
+  box-shadow:0 0 50px #76ff03;
+  
+}
+ul li:nth-child(3){
+  animation-delay:-1s;
+  background:#f06292;
+  box-shadow:0 0 50px #f06292;
+  
+}
+ul li:nth-child(4){
+  animation-delay:-0.8s;
+  background:#4fc3f7;
+  box-shadow:0 0 50px #4fc3f7;
+  
+}
+ul li:nth-child(5){
+  animation-delay:-0.6s;
+  background:#ba68c8;
+  box-shadow:0 0 50px #ba68c8;
+  
+}
+ul li:nth-child(6){
+  animation-delay:-0.4s;
+  background:#f57c00;
+  box-shadow:0 0 50px #f57c00;
+  
+}
+ul li:nth-child(7){
+  animation-delay:-0.2s;
+  background:#673ab7;
+  box-shadow:0 0 50px #673ab7;
+  
+}
+</style>
 </html>

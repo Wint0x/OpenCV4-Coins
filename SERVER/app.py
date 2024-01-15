@@ -63,15 +63,13 @@ def upload_file():
 
             return render_template('image.html', identifier = identifier, filename=filename)
 
-    return '''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Upload>
-    </form>
-    '''
+    return """
+<h1>You did not upload an image!</h1>
+<br>
+<div>
+Go Back: <a href="/upload">/upload</a>
+</div>
+"""
 
 if __name__ == '__main__':
 	app.run()

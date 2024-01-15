@@ -163,11 +163,11 @@ int main(int argc, char** argv)
             return EXIT_FAILURE;
     }
 
-    cv::namedWindow(window_name, cv::WINDOW_KEEPRATIO);
-    cv::imshow( window_name, drawing);
+    //cv::namedWindow(window_name, cv::WINDOW_KEEPRATIO);
+    //cv::imshow( window_name, drawing);
 
     cv::waitKey();
-    cv::destroyAllWindows();
+    //cv::destroyAllWindows();
 
     return EXIT_SUCCESS;
 }
