@@ -1,2 +1,0 @@
-# Add a python virtual environment for flask
-# Better UI and coin recognition/counting techniques
