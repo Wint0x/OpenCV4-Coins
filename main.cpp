@@ -1,19 +1,16 @@
 #include "coindetect.hpp"
 
+const std::string new_image_path(const std::string&);
 const bool equal_mats(const cv::Mat&, const cv::Mat&);
 
 // Path of the data set
 const char* DATA_SET_PATH = "/home/mintdev/Desktop/OpenCV/OPENCVTEST/build/DATA_SETS/coins/data/train";
 
-// Just some Colors.
-/*
-cv::Scalar BLACK = cv::Scalar(0,0,0);
-cv::Scalar BLUE = cv::Scalar(255, 178, 50);
-cv::Scalar YELLOW = cv::Scalar(0, 255, 255);
-cv::Scalar RED = cv::Scalar(0,0,255);
-*/
-
 const char* window_name = "Coin Map";
+
+static std::random_device rd;
+static std::mt19937 mt(rd());
+static std::uniform_int_distribution<int> distr(65, 90);
 
 int main(int argc, char** argv)
 {
@@ -143,6 +140,9 @@ int main(int argc, char** argv)
     auto drawing = src.clone();
 
     // Convert to grayscale
+    const std::string new_image_path_string = new_image_path(input_image); 
+    std::cout << new_image_path_string << " | ";
+
     cv::cvtColor(src, gray, cv::COLOR_BGR2GRAY);
     switch (mode)
     {
@@ -165,6 +165,7 @@ int main(int argc, char** argv)
 
     //cv::namedWindow(window_name, cv::WINDOW_KEEPRATIO);
     //cv::imshow( window_name, drawing);
+    cv::imwrite(new_image_path_string, drawing);
 
     cv::waitKey();
     //cv::destroyAllWindows();
@@ -186,4 +187,30 @@ const bool equal_mats(const cv::Mat& mat1, const cv::Mat& mat2)
         cv::compare(mat1, mat2, diff, cv::CMP_NE);
         int nz = cv::countNonZero(diff);
         return nz==0;
+}
+
+const std::string new_image_path(const std::string& old_image_path)
+{
+    // Random name generation
+    std::string extension = fs::path(old_image_path).extension();
+    
+    // Create a new path, name is a random set of characters
+    std::string new_path, full_path;
+    new_path.resize(8);
+
+    full_path = fs::path(old_image_path).parent_path().string();
+
+    auto it = new_path.begin();
+    while (it != new_path.cend())
+    {
+        *it = (char) distr(mt);
+
+        ++it;
+    }
+
+    new_path.append(extension);
+
+    full_path.append("/").append(new_path);
+    
+    return full_path;
 }
