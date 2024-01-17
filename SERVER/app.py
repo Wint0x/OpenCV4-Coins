@@ -61,7 +61,11 @@ def upload_file():
             
             identifier = analyze_image.check_out()
 
-            return render_template('image.html', identifier = identifier, filename=filename)
+            display_msg = (identifier[1] if not "|" in identifier[1] else "Not Found")
+            filename = (identifier[0].strip() if identifier[0] is not None else filename)
+
+            return render_template('image.html', identifier = display_msg, filename=filename)
+            
 
     return """
 <h1>You did not upload an image!</h1>
