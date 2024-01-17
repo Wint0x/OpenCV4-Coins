@@ -9,7 +9,7 @@ class CallCommand:
 		self.COMMAND = '~/Desktop/OpenCV/OPENCVTEST/build/opencvtest ' + mode + " " + filename
 		print(filename)
 
-	def check_out(self) -> str:
+	def check_out(self):
 		subp = run(self.COMMAND, stdout = PIPE, stderr = PIPE, shell=True, text=True)
 
 		if subp.returncode == 0:
@@ -18,15 +18,26 @@ class CallCommand:
 
 			if len(return_str) < 3:
 				coin_str = "Something went wrong / Could not detect any coins, consider switching modes!"
-				return coin_str
+				return (None, coin_str)
 				
-			if not return_str.startswith("Around"):
+			if not "Around" in return_str:
 				coin_str = return_str.split('/')[-1]
 				coin_str = coin_str.split("__")[-1].replace(".jpg", "").replace("_", " ")
 
+				return (None, coin_str)
+			
 			else:
-				coin_str = return_str
+				# Check if we got a new file path
+				new_file = ""
+				try:
+					new_file = return_str.split("|")[0].strip()
+					new_file = new_file.split("/")[-1]
 
-			return coin_str
+					return (new_file, return_str.split("|")[1].strip())
+
+				except Exception as ex:
+					return (None, "Not Found")
+
 		else:
-			return "Not Found"
+			print("TEST!")
+			return (None, "Not Found")
